@@ -1,0 +1,53 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model teams {
+  id      Int       @id @default(autoincrement())
+  name    String    @db.VarChar(100)
+  country String?   @db.VarChar(50)
+  founded Int?      @db.SmallInt
+  cars    cars[]
+  drivers drivers[]
+}
+
+model cars {
+  id      Int     @id @default(autoincrement())
+  model   String  @db.VarChar(50)
+  year    Int?    @db.SmallInt
+  engine  String? @db.VarChar(50)
+  team_id Int?
+  teams   teams?  @relation(fields: [team_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model drivers {
+  id          Int       @id @default(autoincrement())
+  name        String    @db.VarChar(100)
+  nationality String?   @db.VarChar(50)
+  birth_date  DateTime? @db.Date
+  team_id     Int?
+  teams       teams?    @relation(fields: [team_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  races       races[]
+}
+
+model races {
+  id                   Int      @id @default(autoincrement())
+  date                 DateTime @db.Date
+  track_id             Int?
+  pole_position_driver Int?
+  drivers              drivers? @relation(fields: [pole_position_driver], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  tracks               tracks?  @relation(fields: [track_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model tracks {
+  id       Int     @id @default(autoincrement())
+  name     String  @db.VarChar(100)
+  location String? @db.VarChar(100)
+  length   Float?
+  races    races[]
+}
